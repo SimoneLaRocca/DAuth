@@ -1,0 +1,12 @@
+type = "directrequest"
+schemaVersion = 1
+name = "Fetch VC from Veramo"
+maxTaskDuration = "0s"
+observationSource = """
+  fetch [type="http" method="GET" url="http://localhost:3000/veramo?did={{.did}}" allowUnrestrictedNetworkAccess=true]
+  parse [type="jsonparse" path="" data="$(fetch)"]
+  encode [type="ethabiencode" abi="(bytes32 _requestID, string _vc)" data="{ \\"_requestID\\": $(jobRun.requestId), \\"_vc\\": $(parse) }"]
+  submit_tx [type="ethtx" to="YOUR_ORACLE_CONTRACT_ADDRESS" data="$(encode)"]
+
+  fetch -> parse -> encode -> submit_tx
+"""
