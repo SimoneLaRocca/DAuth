@@ -10,6 +10,10 @@ yarn add sqlite3 typeorm
 
 npx @veramo/cli config create-secret-key
 
+yarn add express body-parser
+
+yarn add @types/express --dev
+
 yarn build
 
 node ./dist/list-identifiers.js 
@@ -25,4 +29,6 @@ node ./dist/verify-credential.js
 node ./dist/register-client-did.js
 
 node ./dist/register-issuer-did.js
+
+node ./dist/adapter.js
 
