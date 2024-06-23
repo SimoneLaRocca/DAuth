@@ -1,0 +1,19 @@
+type = "directrequest"
+schemaVersion = 1
+name = "Fetch VC from Veramo"
+externalJobID = "2afb99ba-0de6-4b76-ba25-f1e19251ed56"
+forwardingAllowed = false
+maxTaskDuration = "20s"
+contractAddress = "0x68812149603a291326539D276f7c88B100495a9b"
+evmChainID = "11155111"
+minContractPaymentLinkJuels = "0"
+observationSource = """
+
+  decode_log   [type="ethabidecodelog" abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)" data="$(jobRun.logData)" topics="$(jobRun.logTopics)"]
+  decode_cbor  [type="cborparse" data="$(decode_log.data)"]
+  fetch [type="http" method="GET" url="http://host.docker.internal:3000/veramo?did={{.did}}" allowUnrestrictedNetworkAccess=true]
+  encode [type="ethabiencode" abi="(bytes32 _requestID, string _vc)" data="{ \\"_requestID\\": $(decode_log.requestId), \\"_vc\\": $(fetch) }"]
+  submit_tx [type="ethtx" to="0x68812149603a291326539D276f7c88B100495a9b" data="$(encode)"]
+
+  decode_log -> decode_cbor -> fetch -> encode -> submit_tx
+"""
