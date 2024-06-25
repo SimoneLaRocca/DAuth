@@ -1,10 +1,10 @@
 type = "directrequest"
 schemaVersion = 1
 name = "Fetch VC from Veramo"
-externalJobID = "2afb99ba-0de6-4b76-ba25-f1e19251ed56"
+externalJobID = "34f82b72-0d06-4167-bd46-413d28bae601"
 forwardingAllowed = false
 maxTaskDuration = "20s"
-contractAddress = "0x68812149603a291326539D276f7c88B100495a9b"
+contractAddress = "0x1e75AD9D57BC130CF742A450e5Dd3b4c2e88cB01"
 evmChainID = "11155111"
 minContractPaymentLinkJuels = "0"
 observationSource = """
@@ -12,8 +12,13 @@ observationSource = """
   decode_log   [type="ethabidecodelog" abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)" data="$(jobRun.logData)" topics="$(jobRun.logTopics)"]
   decode_cbor  [type="cborparse" data="$(decode_log.data)"]
   fetch [type="http" method="GET" url="http://host.docker.internal:3000/veramo?did={{.did}}" allowUnrestrictedNetworkAccess=true]
-  encode [type="ethabiencode" abi="(bytes32 _requestID, string _vc)" data="{ \\"_requestID\\": $(decode_log.requestId), \\"_vc\\": $(fetch) }"]
-  submit_tx [type="ethtx" to="0x68812149603a291326539D276f7c88B100495a9b" data="$(encode)"]
+  encode_data  [type="ethabiencode" abi="(bytes32 _requestID, string _vc)" data="{ \\"_requestID\\": $(decode_log.requestId), \\"_vc\\": $(fetch) }"]
+  encode_tx    [type="ethabiencode"
+                  abi="fulfillOracleRequest2(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes calldata data)"
+                  data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\":   $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"
+                ]
+  submit_tx    [type="ethtx" to="0x1e75AD9D57BC130CF742A450e5Dd3b4c2e88cB01" data="$(encode_tx)"]
 
-  decode_log -> decode_cbor -> fetch -> encode -> submit_tx
+
+  decode_log -> decode_cbor -> fetch -> encode_data -> encode_tx -> submit_tx
 """
