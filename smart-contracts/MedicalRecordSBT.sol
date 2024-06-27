@@ -78,8 +78,7 @@ contract MedicalRecordSBT is ERC721, ChainlinkClient {
         string memory publicKeyHex = extractFieldValue(string(issuerDIDDocument), "publicKeyHex");
 
         string memory jwt = extractFieldValue(_vc, "jwt");
-        (string memory message, string memory signature) = splitJWT(jwt);
-        require(verifySignature(message, signature, publicKeyHex), "Signature verification failed");
+        require(verifySignature(jwt, publicKeyHex), "Signature verification failed");
 
         address requester = requests[_requestID];
         string memory fiscal_code = extractFieldValue(_vc, "healthID");
@@ -172,23 +171,7 @@ contract MedicalRecordSBT is ERC721, ChainlinkClient {
         return "";
     }
 
-    function splitJWT(string memory jwt) internal pure returns (string memory, string memory) {
-        bytes memory jwtBytes = bytes(jwt);
-        bytes memory messageBytes = new bytes(jwtBytes.length - 65); // 65 bytes for the signature
-        bytes memory signatureBytes = new bytes(65);
-
-        for (uint256 i = 0; i < jwtBytes.length - 65; i++) {
-            messageBytes[i] = jwtBytes[i];
-        }
-
-        for (uint256 i = 0; i < 65; i++) {
-            signatureBytes[i] = jwtBytes[jwtBytes.length - 65 + i];
-        }
-
-        return (string(messageBytes), string(signatureBytes));
-    }
-
-    function verifySignature(string memory message, string memory signature, string memory publicKeyHex) internal pure returns (bool) {
+    function verifySignature(string memory jwt, string memory publicKeyHex) internal pure returns (bool) {
         // ECDSA signature verification
         return true;
     }
