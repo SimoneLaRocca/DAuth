@@ -1,7 +1,7 @@
 type = "directrequest"
 schemaVersion = 1
-name = "Fetch VC from Veramo"
-externalJobID = "34f82b72-0d06-4167-bd46-413d28bae601"
+name = "Fetch VC from Veramo v20"
+externalJobID = "fe2e03fc-f625-4a7b-991d-acbeffd357f9"
 forwardingAllowed = false
 maxTaskDuration = "20s"
 contractAddress = "0x1e75AD9D57BC130CF742A450e5Dd3b4c2e88cB01"
@@ -17,8 +17,9 @@ observationSource = """
                   abi="fulfillOracleRequest2(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes calldata data)"
                   data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\":   $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"
                 ]
-  submit_tx    [type="ethtx" to="0x1e75AD9D57BC130CF742A450e5Dd3b4c2e88cB01" data="$(encode_tx)"]
+  submit_tx    [type="ethtx" to="0x1e75AD9D57BC130CF742A450e5Dd3b4c2e88cB01" data="$(encode_tx)" gasLimit="5000000"]
 
 
   decode_log -> decode_cbor -> fetch -> encode_data -> encode_tx -> submit_tx
 """
+
