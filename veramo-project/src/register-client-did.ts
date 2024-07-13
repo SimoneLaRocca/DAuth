@@ -5,7 +5,7 @@ import * as fs from 'fs'
 const provider = new ethers.providers.InfuraProvider('sepolia', INFURA_PROJECT_ID);
 const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 
-const didRegistryAddress = '0x03d5003bf0e79C5F5223588F347ebA39AfbC3818';
+const didRegistryAddress = 'your_did_registry_address';
 
 async function registerDID() {
   const vcData = JSON.parse(fs.readFileSync('verifiedCredential.json', 'utf8'));
