@@ -1,15 +1,11 @@
 import { ethers } from 'ethers';
-import { agent } from './veramo/setup.js';
+import { agent, INFURA_PROJECT_ID, PRIVATE_KEY } from './veramo/setup.js';
 import * as fs from 'fs';
 
-const INFURA_PROJECT_ID = 'your_infuria_project_id';
-
 const provider = new ethers.providers.InfuraProvider('sepolia', INFURA_PROJECT_ID);
+const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 
-const privateKey = 'your_private_key';
-const wallet = new ethers.Wallet(privateKey, provider);
-
-const didRegistryAddress = '0x03d5003bf0e79C5F5223588F347ebA39AfbC3818';
+const didRegistryAddress = 'your_did_registry_address';
 
 async function registerIssuerDID() {
   // Load the DID document of the issuer from the issuer-did.json file
