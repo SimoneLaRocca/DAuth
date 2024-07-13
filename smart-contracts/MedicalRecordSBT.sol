@@ -61,6 +61,7 @@ contract MedicalRecordSBT is ERC721, ChainlinkClient {
 
     function requestSBT(string memory _did) public {
         require(bytes(JOB_ID).length > 0, "Job ID has not been set");
+        require(tokensIssued[msg.sender].tokenID == 0, "Token already issued for this address");
         Chainlink.Request memory request = _buildChainlinkRequest(stringToBytes32(JOB_ID), address(this), this.fulfill.selector);
         request._add("did", _did); 
         uint256 paymentAmount = 1 * LINK_DIVISIBILITY; // 1 LINK
@@ -70,7 +71,9 @@ contract MedicalRecordSBT is ERC721, ChainlinkClient {
 
     function fulfill(bytes32 _requestID, string memory _vc) public recordChainlinkFulfillment(_requestID) {
         // Logica per gestire il risultato ottenuto dall'oracolo
+        
         string memory _issuerDID = extractFieldValue(_vc, "iss");
+    
         bool isAuthorized = NationalHealthServiceDIDRegistry(NATIONAL_HEALTH_SERVICE_DID_REGISTRY_ADDRESS).isDIDAuthorized(_issuerDID, "issueCredential");
         require(isAuthorized, "Permission denied");
 
@@ -81,6 +84,7 @@ contract MedicalRecordSBT is ERC721, ChainlinkClient {
         require(verifySignature(jwt, publicKeyHex), "Signature verification failed");
 
         address requester = requests[_requestID];
+
         string memory fiscal_code = extractFieldValue(_vc, "healthID");
         _tokenCounter++;
         _totalTokens++;
