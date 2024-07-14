@@ -24,6 +24,7 @@ import { DataSource } from 'typeorm'
 const DATABASE_FILE = 'database.sqlite'
 export const INFURA_PROJECT_ID = 'your_infuria_project_id'
 export const PRIVATE_KEY = 'your_private_key'
+export const DID_REGISTRY_ADDRESS = 'did_registry_address'
 const KMS_SECRET_KEY = 'your_kms_secret_key'
 const SEPOLIA_RPC_URL = 'https://sepolia.infura.io/v3/' + INFURA_PROJECT_ID
 
