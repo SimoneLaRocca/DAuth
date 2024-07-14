@@ -1,14 +1,11 @@
 import { ethers } from 'ethers';
-import { agent, INFURA_PROJECT_ID, PRIVATE_KEY } from './veramo/setup.js';
+import { agent, INFURA_PROJECT_ID, PRIVATE_KEY, DID_REGISTRY_ADDRESS } from './veramo/setup.js';
 import * as fs from 'fs';
 
 const provider = new ethers.providers.InfuraProvider('sepolia', INFURA_PROJECT_ID);
 const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 
-const didRegistryAddress = 'your_did_registry_address';
-
 async function registerIssuerDID() {
-  // Load the DID document of the issuer from the issuer-did.json file
   const issuerDidData = JSON.parse(fs.readFileSync('issuer-did.json', 'utf8'));
   const didDocument = {
     id: issuerDidData.did,
@@ -27,18 +24,16 @@ async function registerIssuerDID() {
   console.log('Issuer DID Document:', didDocument);
 
   const ethrDid = new ethers.Contract(
-    didRegistryAddress,
+    DID_REGISTRY_ADDRESS,
     [
-      'function setAttribute(address identity, bytes32 name, bytes value, uint validity) public',
+      'function updateDIDDocument(string memory _did, bytes memory _document) public',
     ],
     wallet
   );
 
-  const attributeName = ethers.utils.formatBytes32String('did/doc');
-  const attributeValue = ethers.utils.toUtf8Bytes(JSON.stringify(didDocument));
-  const validity = 86400; // 1 day validity
+  const documentBytes = ethers.utils.toUtf8Bytes(JSON.stringify(didDocument));
 
-  const tx = await ethrDid.setAttribute(wallet.address, attributeName, attributeValue, validity);
+  const tx = await ethrDid.updateDIDDocument(issuerDidData.did, documentBytes);
   const receipt = await tx.wait();
 
   console.log('Transaction hash:', receipt.transactionHash);
